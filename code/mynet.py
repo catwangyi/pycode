@@ -41,6 +41,7 @@ class conv_tasnet(nn.Module):
         masked_feature = masked_feature.view(mask.size(0)*mask.size(1), 512, -1)
         out = self.decoder(masked_feature)
         out = out.view(input.size(0), 2, -1)
+        out = out[:, :, :-need_legth]
         return out
 
 
@@ -134,4 +135,4 @@ class depth_conv(nn.Module):
 
 if __name__ == "__main__":
     net = conv_tasnet(2)
-    torchsummary.summary(net, (1, 16800))
+    torchsummary.summary(net, (1, 16375))
