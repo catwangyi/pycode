@@ -18,7 +18,7 @@ class conv_tasnet(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
-
+        input = torch.unsqueeze(input, dim=0)
         signal_length = input.size(2)
         batch_size = input.size(0)
         # rest 是指输入信号和输出信号长度之差，因为卷积和转置卷积长度并不完全一样
@@ -41,6 +41,7 @@ class conv_tasnet(nn.Module):
         masked_feature = masked_feature.view(mask.size(0)*mask.size(1), 512, -1)
         out = self.decoder(masked_feature)
         out = out.view(input.size(0), 2, -1)
+        out = out[:, :, :-need_legth]
         return out
 
 
@@ -134,4 +135,4 @@ class depth_conv(nn.Module):
 
 if __name__ == "__main__":
     net = conv_tasnet(2)
-    torchsummary.summary(net, (1, 16800))
+    torchsummary.summary(net, (1, 16375))
