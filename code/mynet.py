@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 import torchsummary
+from torch.autograd import Variable
 
 
 class conv_tasnet(nn.Module):
@@ -10,14 +11,26 @@ class conv_tasnet(nn.Module):
         self.encoder = nn.Conv1d(in_channels=1, out_channels=512, kernel_size=32, stride=16, bias=False)
         self.separater = separation(stacks=3, layers=8)
         self.decoder = nn.ConvTranspose1d(in_channels=512,
-                                          out_channels=2,
-                                          output_padding=1,
+                                          out_channels=1,
                                           kernel_size=32,
                                           stride=16,
                                           bias=False)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
+
+        signal_length = input.size(2)
+        batch_size = input.size(0)
+        # rest 是指输入信号和输出信号长度之差，因为卷积和转置卷积长度并不完全一样
+        rest = int(signal_length - np.floor((signal_length - 32)/16) * 16 - 32)
+
+        if rest > 0:
+            # 需要将input进行填充，填充为长度是32(也就是kernal)的整数倍的长度，此时转置卷积后的长度与填充后的长度保持一致
+            need_legth = int(np.ceil(signal_length / 32) * 32 - signal_length)
+            pad = Variable(torch.zeros(batch_size, 1, need_legth)).type(input.type())
+            input = torch.cat([input, pad], 2)
+        # print(rest)
+
         sound_feature = self.encoder(input)
         mask = self.separater(sound_feature)
         mask = self.sigmoid(mask)
@@ -63,7 +76,7 @@ class newNormal(nn.Module):
         var = torch.unsqueeze(var, dim=1)
         var = var.expand_as(input)
 
-        x = (input - mean) / torch.sqrt(var)
+        x = (input - mean) / torch.sqrt(var + self.eps)
         out = x * self.gains.expand_as(input).type(input.type()) + self.bias.expand_as(input).type(input.type())
         return out
 
@@ -81,7 +94,10 @@ class separation(nn.Module):
                 self.tcn_layers.add_module(name='dconv{}'.format((s+1)*l),
                                            module=depth_conv(in_channel=128,
                                                              hidden_channel=128*4,
-                                                             out_channel=128))
+                                                             out_channel=128,
+                                                             dilation=2 ** l,
+                                                             padding=2 ** l
+                                                             ))
         self.output = nn.Sequential(nn.PReLU(),
                                     nn.Conv1d(in_channels=128, out_channels=2*512, kernel_size=1)
                                     )
@@ -89,12 +105,13 @@ class separation(nn.Module):
     def forward(self, input):
         out = self.layer_norm(input)
         out = self.bottle_neck(out)
-        out = self.output(self.tcn_layers(out))
+        out = self.tcn_layers(out)
+        out = self.output(out)
         return out
 
 
 class depth_conv(nn.Module):
-    def __init__(self, in_channel, hidden_channel, out_channel, dilation=1):
+    def __init__(self, in_channel, hidden_channel, out_channel, dilation=1, padding = 1):
         super(depth_conv, self).__init__()
         self.conv1 = nn.Conv1d(in_channels=in_channel, out_channels=hidden_channel, kernel_size=1)
         self.dconv = nn.Conv1d(in_channels=hidden_channel,
@@ -102,7 +119,7 @@ class depth_conv(nn.Module):
                                kernel_size=3,
                                dilation=dilation,
                                groups=hidden_channel,
-                               padding=1)
+                               padding=padding)
         self.non_linear1 = nn.PReLU()
         self.non_linear2 = nn.PReLU()
         self.normal1 = newNormal(num_features=hidden_channel)
@@ -117,4 +134,4 @@ class depth_conv(nn.Module):
 
 if __name__ == "__main__":
     net = conv_tasnet(2)
-    torchsummary.summary(net, (1, 52))
+    torchsummary.summary(net, (1, 16800))

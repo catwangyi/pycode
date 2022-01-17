@@ -89,7 +89,7 @@ def test_conv_tasnet():
     nnet = TasNet(causal=False)
     summary(nnet, input_size=(1, 32048))
     # for i in x:
-    print(nnet)
+    # print(nnet)
     #     print(i.shape)
 
 
