@@ -6,8 +6,30 @@ from mynet import conv_tasnet
 from torch.utils.data import DataLoader
 
 
+def sisinr(x, s, eps=1e-8):
+    def l2norm(mat, keepdim=False):
+        return torch.norm(mat, dim=-1, keepdim=keepdim)
+
+    if x.shape != s.shape:
+        raise RuntimeError(f"dimention mistmatch{x.shape} vs {s.shape}")
+    x_zm = x - torch.mean(x, dim=-1, keepdim=True)
+    s_zm = s - torch.mean(s, dim=-1, keepdim=True)
+    t = torch.sum(x_zm * s_zm, dim=-1, keepdim=True)
+    t = t * s_zm / (l2norm(s_zm, keepdim=True) + eps)
+    return 20 * torch.log10(eps + l2norm(t)) / (l2norm(x_zm - t) + eps)
+
+
 if __name__ == "__main__":
     net = conv_tasnet(num_speakers=2)
+    optimizer = torch.optim.Adam(params=net.parameters(), lr=1e-3)
+    EPOCHS = 20
+
+    loss = None
+    signal, sr = librosa.load("../audio/mix.wav", sr=8000)
+    signal = torch.from_numpy(signal).view(1, 1, -1)
+    for epoch in range(EPOCHS):
+        prediction = net(signal)
+        a = 1
     optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
     loss_function = torch.nn.MSELoss()
 

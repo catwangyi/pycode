@@ -40,6 +40,8 @@ class conv_tasnet(nn.Module):
 
         masked_feature = masked_feature.view(mask.size(0)*mask.size(1), 512, -1)
         out = self.decoder(masked_feature)
+        if rest > 0:
+            out = out[:, :, :-need_legth]
         out = out.view(input.size(0), 2, -1)
         out = out[:, :, :-need_legth]
         return out
