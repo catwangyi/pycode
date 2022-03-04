@@ -99,11 +99,60 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
+        self.conv1 = nn.Conv1d(in_channels=2, out_channels=32, kernel_size=31, stride=2, padding=15)
+        self.batch_norm1 = nn.BatchNorm1d(num_features=32)
+        self.relu1 = nn.PReLU()
+
+        self.conv2 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size=31, stride=2, padding=15)
+        self.batch_norm2 = nn.BatchNorm1d(num_features=64)
+        self.relu2 = nn.PReLU()
+
+        self.conv3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=31, stride=2, padding=15)
+        self.batch_norm3 = nn.BatchNorm1d(num_features=128)
+        self.relu3 = nn.PReLU()
+
+        self.conv4 = nn.Conv1d(in_channels=128, out_channels=256, kernel_size=31, stride=2, padding=15)
+        self.batch_norm4 = nn.BatchNorm1d(num_features=256)
+        self.relu4 = nn.PReLU()
+
+        self.conv5 = nn.Conv1d(in_channels=256, out_channels=512, kernel_size=31, stride=2, padding=15)
+        self.batch_norm5 = nn.BatchNorm1d(num_features=512)
+        self.relu5 = nn.PReLU()
+
+        self.conv6 = nn.Conv1d(in_channels=512, out_channels=1024, kernel_size=31, stride=2, padding=15)
+        self.batch_norm6 = nn.BatchNorm1d(num_features=1024)
+        self.relu6 = nn.PReLU()
+
+        self.conv7 = nn.Conv1d(in_channels=1024, out_channels=2048, kernel_size=31, stride=2, padding=15)
+        self.batch_norm7 = nn.BatchNorm1d(num_features=2048)
+        self.relu7 = nn.PReLU()
+
+        self.conv8 = nn.Conv1d(in_channels=2048, out_channels=1, kernel_size=1, stride=1)
+        self.batch_norm8 = nn.BatchNorm1d(num_features=1)
+        self.relu8 = nn.PReLU()
+
+        self.fc_layer = nn.Linear(in_features=128, out_features=1)
+        self.output = nn.Sigmoid()
 
     def forward(self, input):
-        pass
+        out1 = self.relu1(self.batch_norm1(self.conv1(input)))
+        out2 = self.relu2(self.batch_norm2(self.conv2(out1)))
+        out3 = self.relu3(self.batch_norm3(self.conv3(out2)))
+        out4 = self.relu4(self.batch_norm4(self.conv4(out3)))
+        out5 = self.relu5(self.batch_norm5(self.conv5(out4)))
+        out6 = self.relu6(self.batch_norm6(self.conv6(out5)))
+        out7 = self.relu7(self.batch_norm7(self.conv7(out6)))
+        out8 = self.relu8(self.batch_norm8(self.conv8(out7)))
+        out = torch.squeeze(out8)
+        out = self.output(self.fc_layer(out))
+        return out
 
 
 if __name__ == "__main__":
-    generator = Generator()
-    summary(model=generator, input_size=(1, 16384), batch_size=1, device="cpu")
+    # generator = Generator()
+    # summary(model=generator, input_size=(1, 16384), batch_size=2, device="cpu")
+    discriminator = Discriminator()
+    summary(model=discriminator, input_size=(2, 16384), batch_size=2)
+
+
+

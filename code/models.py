@@ -180,7 +180,8 @@ class DepthConv1d(nn.Module):
             return residual, skip
         else:
             return residual
-        
+
+
 class TCN(nn.Module):
     def __init__(self, input_dim, output_dim, BN_dim, hidden_dim,
                  layer, stack, kernel=3, skip=True, 
