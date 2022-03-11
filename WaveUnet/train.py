@@ -22,7 +22,7 @@ def collate_fn(batch):
 
 if __name__ == "__main__":
     dataset = MyDataset(DATASET_PATH)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
     net = WaveUnet(IN_CHANNEL_LIST, OUT_CHANNEL_LIST)
     loss_func = nn.MSELoss()
     best_loss = float('inf')
