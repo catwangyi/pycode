@@ -45,6 +45,10 @@ class Decoder(Module):
     def forward(self, x, cat_tensors):
         for layer, cat_tensor in zip(self.model_list, cat_tensors):
             x = F.interpolate(x, scale_factor=2, mode="linear", align_corners=True)
+            if x.shape[-1] == cat_tensor.shape[-1] - 1:
+                x = F.pad(x, (0, 1), mode="reflect")
+            elif x.shape[-1] == cat_tensor.shape[-1] + 1:
+                x = x[:, :, :-1]
             x = torch.cat((x, cat_tensor), dim=1)
             x = layer(x)
         return x
@@ -63,6 +67,8 @@ class Encoder(Module):
         for layers in self.model_list:
             x = layers(x)
             self.feature_list.append(x)
+            # if x.shape[-1] % 2:
+                # x = F.pad(x, (0, 2), "constant", 0)
             x = x[:, :, ::2]
         return x, self.feature_list[::-1]
 
