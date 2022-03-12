@@ -10,6 +10,6 @@ if __name__ == "__main__":
         for root, dirs, files in os.walk("audio\\noisy"):
             for file in files:
                 input_sig, sr = torchaudio.load(root+"\\"+file)
-                input_sig = torch.unsqueeze(input_sig, dim=0)
-                pred = net(input_sig)
-                torchaudio.save("audio\pred"+"\\pred_"+file, torch.squeeze(pred, dim=0), sr)
+                pred = net(torch.unsqueeze(input_sig, dim=0))
+                pred = torch.squeeze(pred, dim=0)
+                torchaudio.save("audio\pred"+"\\pred_"+file, pred, sr)

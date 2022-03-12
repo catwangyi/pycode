@@ -9,7 +9,7 @@ import hiddenlayer as hl
 class WaveUnet(Module):
     def __init__(self, in_channel_list, out_channel_list):
         super(WaveUnet, self).__init__()
-        self.encoder = Encoder(in_channel_list, out_channel_list)
+        self.encoder = Encoder(in_channel_list[:-1], out_channel_list[:-1])
         self.cat_tensors = []
         self.middle = nn.Sequential(
             nn.Conv1d(in_channels=out_channel_list[-1],
@@ -18,11 +18,13 @@ class WaveUnet(Module):
                       padding=7,
                       stride=1),
             nn.BatchNorm1d(out_channel_list[-1]),
-            nn.LeakyReLU()
+            nn.LeakyReLU(0.1)
         )
-        self.decoder = Decoder(out_channel_list[::-1], in_channel_list[::-1])
+        decoder_in_list = [i+j for i, j in zip(in_channel_list[1:], out_channel_list[1:])]
+        decoder_out = out_channel_list[::-1]
+        self.decoder = Decoder(decoder_in_list[::-1], decoder_out[1:])
         self.last_layer = nn.Sequential(
-                    nn.Conv1d(in_channels=in_channel_list[0] * 2, out_channels=1, kernel_size=1, stride=1, dilation=1),
+                    nn.Conv1d(in_channels=in_channel_list[0] + out_channel_list[0], out_channels=1, kernel_size=1, stride=1, dilation=1),
                     nn.Tanh()
                 )
 
@@ -40,7 +42,7 @@ class Decoder(Module):
         super(Decoder, self).__init__()
         self.model_list = nn.ModuleList()
         for i in range(len(in_channel_list)):
-            self.model_list.append(UpConv(in_channel_list[i] * 2, out_channel_list[i]))
+            self.model_list.append(UpConv(in_channel_list[i], out_channel_list[i]))
 
     def forward(self, x, cat_tensors):
         for layer, cat_tensor in zip(self.model_list, cat_tensors):
@@ -79,7 +81,7 @@ class DownConv(Module):
         self.seq = nn.Sequential(
             nn.Conv1d(in_channels=in_channel, out_channels=out_channel, kernel_size=15, padding=7, stride=1, dilation=1),
             nn.BatchNorm1d(out_channel),
-            nn.LeakyReLU()
+            nn.LeakyReLU(0.1)
         )
 
     def forward(self, x):
@@ -92,7 +94,7 @@ class UpConv(Module):
         self.seq = nn.Sequential(
             nn.Conv1d(in_channels=in_channel, out_channels=out_channel, padding=2, stride=1, kernel_size=5),
             nn.BatchNorm1d(out_channel),
-            nn.LeakyReLU()
+            nn.LeakyReLU(0.1)
         )
 
     def forward(self, x):
@@ -100,22 +102,9 @@ class UpConv(Module):
 
 
 if __name__ == "__main__":
-    in_channel_list = [1, 24, 28, 72, 96, 120, 144, 168, 192, 216, 240, 264]
-    out_channel_list = [24, 28, 72, 96, 120, 144, 168, 192, 216, 240, 264, 288]
+    in_channel_list = [1, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264, 288]
+    out_channel_list = [24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264, 288, 288]
     net = WaveUnet(in_channel_list, out_channel_list)
-    # summary(net, input_size=(1, 16384), batch_size=2)
-    loss_func = nn.MSELoss()
-    input = torch.Tensor(1, 1, 16384)
-    label = torch.ones_like(input)
-    EPOCH = 2000
-    optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
-    for epoch in range(EPOCH):
-        pred = net(input)
-        loss = loss_func(pred, label)
-
-        print(loss.item())
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    print(net)
 
 
