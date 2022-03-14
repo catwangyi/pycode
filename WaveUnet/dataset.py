@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset
 import torchaudio
 import os.path
+import numpy as np
 
 
 class MyDataset(Dataset):
@@ -19,8 +20,6 @@ class MyDataset(Dataset):
             self.path = os.path.join(audio_path, self.state)
 
         for root, dirs, files in os.walk(self.path):
-            if 'txt' in dirs:
-                dirs.remove('txt')
             if len(files) != 0:
                 if "clean" in root:
                     self.clean_list = [root + "\\" + file for file in files]
@@ -33,15 +32,16 @@ class MyDataset(Dataset):
 
         label, sr = torchaudio.load(clean_path)
         noisy_sig, _ = torchaudio.load(noisy_path)
-        needed_len = sr * 5
-        if label.shape[1] <= needed_len:
-            rest_len = needed_len - label.shape[1]
-            noisy_sig = F.pad(input=noisy_sig, pad=(0, rest_len), mode="constant", value=0)
-            label = F.pad(input=label, pad=(0, rest_len), mode="constant", value=0)
-        else:
-            start_idx = int((label.shape[1] - needed_len)/2)
-            noisy_sig = noisy_sig[:, start_idx:start_idx + needed_len]
-            label = label[:, start_idx:start_idx + needed_len]
+        # x = np.floor(np.log2(sr * 10)) + 1
+        # needed_len = int(2 ** x)
+        # if label.shape[1] <= needed_len:
+        #     rest_len = needed_len - label.shape[1]
+        #     noisy_sig = F.pad(input=noisy_sig, pad=(0, rest_len), mode="constant", value=0)
+        #     label = F.pad(input=label, pad=(0, rest_len), mode="constant", value=0)
+        # else:
+        #     start_idx = int((label.shape[1] - needed_len)/2)
+        #     noisy_sig = noisy_sig[:, start_idx:start_idx + needed_len]
+        #     label = label[:, start_idx:start_idx + needed_len]
         # 如果不是2的倍数
         # if label.shape[1] % 2:
         #     noisy_sig = F.pad(input=noisy_sig, pad=(0, 1), mode="constant", value=0)

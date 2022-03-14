@@ -1,6 +1,7 @@
 from model import WaveUnet
 from dataset import MyDataset
 import torch
+from unet_basic import Model
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
@@ -24,6 +25,7 @@ if __name__ == "__main__":
     dataset = MyDataset(DATASET_PATH)
     dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
     net = WaveUnet(IN_CHANNEL_LIST, OUT_CHANNEL_LIST)
+    # net = WaveUnet()
     loss_func = nn.MSELoss()
     best_loss = float('inf')
     optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
