@@ -30,7 +30,22 @@ if __name__ =="__main__":
     for root, dirs, files in os.walk("E:\dataset\DEMAND"):
         if len(dirs) == 0:
             noisy_file_path_list.append(os.path.join(root, "merged.wav"))
-    snr_list = [17.5, 12.5, 7.5, 2.5]
+    snr_list = [7.5, 5, -2.5, -5]
+    snr_list_idx = 0
+    noisy_list_idx = 0
+    for root, dirs, files in os.walk("D:\\voicebank\\train\clean_trainset_wav"):
+        if len(dirs) == 0:
+            for file in files:
+                if snr_list_idx == len(snr_list):
+                    snr_list_idx = 0
+                if noisy_list_idx == len(noisy_file_path_list):
+                    noisy_list_idx = 0
+                noisy_data = add_noisy(os.path.join(root, file), noisy_file_path_list[noisy_list_idx], snr_list[snr_list_idx])
+                snr_list_idx += 1
+                noisy_list_idx += 1
+                soundfile.write(os.path.join("D:\\voicebank\\train\\noisy_trainset_wav", file),
+                                noisy_data,
+                                samplerate=16000)
     snr_list_idx = 0
     noisy_list_idx = 0
     for root, dirs, files in os.walk("D:\\voicebank\\test\clean_testset_wav"):

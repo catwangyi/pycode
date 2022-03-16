@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # net = WaveUnet()
     loss_func = nn.MSELoss()
     best_loss = float('inf')
-    optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
+    optimizer = torch.optim.Adam(net.parameters(), lr=5e-5)
     for epoch in range(EPOCH):
         last_save = 0
         curr_num = 0
@@ -42,7 +42,7 @@ if __name__ == "__main__":
                                                                         curr_num,
                                                                         len(dataloader)))
             if loss.item() < best_loss:
-                torch.save(net, "best_model.pth")
+                torch.save(net.state_dict(), "best_model.pth")
                 best_loss = loss.item()
                 last_save = curr_num
                 print("save model")
