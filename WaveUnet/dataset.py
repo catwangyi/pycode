@@ -22,9 +22,9 @@ class MyDataset(Dataset):
         for root, dirs, files in os.walk(self.path):
             if len(files) != 0:
                 if "clean" in root:
-                    self.clean_list = [root + "\\" + file for file in files]
+                    self.clean_list = [root + "/" + file for file in files]
                 elif "noisy" in root:
-                    self.noisy_list = [root + "\\" + file for file in files]
+                    self.noisy_list = [root + "/" + file for file in files]
 
     def __getitem__(self, index):
         clean_path = self.clean_list[index]

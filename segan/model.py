@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torchsummary import summary
+# from torchsummary import summary
 
 
 class Generator(nn.Module):
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     # generator = Generator()
     # summary(model=generator, input_size=(1, 16384), batch_size=2, device="cpu")
     discriminator = Discriminator()
-    summary(model=discriminator, input_size=(2, 16384), batch_size=2)
+    # summary(model=discriminator, input_size=(2, 16384), batch_size=2)
 
 
 

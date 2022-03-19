@@ -30,7 +30,7 @@ if __name__ =="__main__":
     for root, dirs, files in os.walk("E:\dataset\DEMAND"):
         if len(dirs) == 0:
             noisy_file_path_list.append(os.path.join(root, "merged.wav"))
-    snr_list = [7.5, 5, -2.5, -5]
+    snr_list = [2.5, 0, -2.5, -5]
     snr_list_idx = 0
     noisy_list_idx = 0
     for root, dirs, files in os.walk("D:\\voicebank\\train\clean_trainset_wav"):

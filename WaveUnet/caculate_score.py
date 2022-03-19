@@ -44,7 +44,7 @@ def caculate_pesq(clean_file_list, denoised_file_list):
         #     clean = clean[:, start_idx:start_idx + needed_len]
         #     enhanced = enhanced[:, start_idx:start_idx + needed_len]
 
-        score += pesq(sr, clean, enhanced)
+        score += pesq(sr, clean, enhanced, mode='wb')
         # print(score)
     print("pesq:", score / len(clean_file_list))
 
@@ -55,15 +55,15 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk("D:\\voicebank\\test\clean_testset_wav"):
         for file in files:
             clean_file_list.append(os.path.join(root, file))
-
-    for root, dirs, files in os.walk("D:\\voicebank\\test\\noisy_testset_wav"):
-        for file in files:
-            denoised_file_list.append(os.path.join(root, file))
-    print("before enhancement:")
-    caculate_stoi(clean_file_list, denoised_file_list)
-    caculate_pesq(clean_file_list, denoised_file_list)
-
-
+    # for root, dirs, files in os.walk("D:\\voicebank\\test\\noisy_testset_wav"):
+    #     for file in files:
+    #         denoised_file_list.append(os.path.join(root, file))
+    # print("before enhancement:")
+    # caculate_stoi(clean_file_list, denoised_file_list)
+    # caculate_pesq(clean_file_list, denoised_file_list)
+    # before enhancement:
+    # stoi: 0.920372171625095
+    # pesq: 1.731361561608546
     denoised_file_list = []
     for root, dirs, files in os.walk("D:\\voicebank\pred"):
         for file in files:
