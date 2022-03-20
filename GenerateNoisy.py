@@ -33,7 +33,7 @@ if __name__ =="__main__":
     snr_list = [2.5, 0, -2.5, -5]
     snr_list_idx = 0
     noisy_list_idx = 0
-    for root, dirs, files in os.walk("D:\\voicebank\\train\clean_trainset_wav"):
+    for root, dirs, files in os.walk("E:\dataset\\voicebank\\train\clean_trainset_wav"):
         if len(dirs) == 0:
             for file in files:
                 if snr_list_idx == len(snr_list):
@@ -43,12 +43,12 @@ if __name__ =="__main__":
                 noisy_data = add_noisy(os.path.join(root, file), noisy_file_path_list[noisy_list_idx], snr_list[snr_list_idx])
                 snr_list_idx += 1
                 noisy_list_idx += 1
-                soundfile.write(os.path.join("D:\\voicebank\\train\\noisy_trainset_wav", file),
+                soundfile.write(os.path.join("E:\dataset\\voicebank\\train\\noisy_trainset_wav", file),
                                 noisy_data,
                                 samplerate=16000)
     snr_list_idx = 0
     noisy_list_idx = 0
-    for root, dirs, files in os.walk("D:\\voicebank\\test\clean_testset_wav"):
+    for root, dirs, files in os.walk("E:\dataset\\voicebank\\test\clean_testset_wav"):
         if len(dirs) == 0:
             for file in files:
                 if snr_list_idx == len(snr_list):
@@ -58,6 +58,6 @@ if __name__ =="__main__":
                 noisy_data = add_noisy(os.path.join(root, file), noisy_file_path_list[noisy_list_idx], snr_list[snr_list_idx])
                 snr_list_idx += 1
                 noisy_list_idx += 1
-                soundfile.write(os.path.join("D:\\voicebank\\test\\noisy_testset_wav", file),
+                soundfile.write(os.path.join("E:\dataset\\voicebank\\test\\noisy_testset_wav", file),
                                 noisy_data,
                                 samplerate=16000)
