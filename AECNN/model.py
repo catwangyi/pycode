@@ -62,11 +62,12 @@ class Aecnn_Decoder(Module):
         return d8
 
 
-    def deconv_blocks(self, in_channel, out_channel, kernel=14, stride=2, padding=6):
+    def deconv_blocks(self, in_channel, out_channel, kernel=11, stride=2, padding=5, out_padding=1):
         block = nn.Sequential(
             nn.ConvTranspose1d(in_channels=in_channel,
                                out_channels=out_channel,
                                kernel_size=kernel,
+                               output_padding=out_padding,
                                stride=stride,
                                padding=padding
                                ),
@@ -113,7 +114,7 @@ class Aecnn_Encoder(Module):
         f8 = self.down8(f7)
         return f8, [f1, f2, f3, f4, f5, f6, f7, f8]
 
-    def down_sample_block(self, in_channel, out_channel, kernel=14, padding=6, stride=2):
+    def down_sample_block(self, in_channel, out_channel, kernel=11, padding=5, stride=2):
         block = nn.Sequential(
             nn.Conv1d(in_channels=in_channel,
                       out_channels=out_channel,

@@ -17,9 +17,18 @@ def freqLoss_From_TimeDomain(enhanced_out, clean_spec, n_fft=512, need_mean=True
     D_tensor = D_tensor.to(device)
     Dr = torch.real(D_tensor).float()
     Di = torch.imag(D_tensor).float()
-    enhanced_audio = frame_to_audio(enhanced_out, device=device)
+    enhanced_audio = frame_to_audio(enhanced_out,
+                           frame_size=enhanced_out.shape[0],
+                           window=torch.ones(2048),
+                           frame_num=enhanced_out.shape[1],
+                           hop_len=256,
+                           device=device)
 
-    frames = audio_to_frame(enhanced_audio, device=device)
+    frames = audio_to_frame(audio=enhanced_audio,
+                            frame_size=512,
+                            window=torch.hamming_window(512),
+                            hop_len=int(512/2),
+                            device=device)
     pred_real = torch.matmul(Dr, frames)
     pred_image = torch.matmul(Di, frames)
 
